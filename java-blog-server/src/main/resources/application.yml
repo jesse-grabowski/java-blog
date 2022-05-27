@@ -1,0 +1,9 @@
+spring:
+  web:
+    locale: en
+
+blog:
+  content:
+    supported-languages:
+      - en
+      - jp

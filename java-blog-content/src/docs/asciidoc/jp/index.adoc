@@ -1,0 +1,9 @@
+= Hello In Japanese
+
+[plantuml, test-image, format=svg]
+....
+@startuml
+
+bob --> alice : hello
+alice --> bob : world
+....

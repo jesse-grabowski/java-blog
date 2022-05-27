@@ -1,0 +1,45 @@
+:doctype: article
+:author: Jesse Grabowski
+:created_at: 2022-05-27
+:published_at: 2022-05-27
+:copyright: © 2022 {author}
+
+:description: The home page of my blog yay
+:backstory: I wanted to make a blog
+:abstract: A simple test page
+:audience: General
+:keywords: software, blogging
+:teaches: Software Development
+:lang: en
+
+:stem: latexmath
+:toc:
+= Hello
+
+== Some Other Header
+
+Let's put some content here and see what happens. "Do the quotes work?"
+
+[plantuml, test-image, format=svg, alt="Diagram showing key exchange"]
+....
+@startuml
+!theme sketchy-outline
+
+bob --> alice : hello
+alice --> bob : world
+....
+
+And here's a bit of math
+
+[stem, alt="Some math"]
+++++
+\[
+f(x,y)= \left\{ \begin{array}{ll}
+\frac{x^2y}{x^4+y^2} & \mbox{if $(x,y) \neq (0,0)$} \\
+0 & \mbox{if $(x,y) = (0,0)$} \\
+\end{array}
+\right. \\
+\]
+++++
+
+xref:other.adoc[Click me]
