@@ -1,0 +1,83 @@
+doctype 5
+html lang=(attr 'lang', 'en')
+  head
+    meta charset=(attr 'encoding', 'UTF-8')
+    meta http-equiv="X-UA-Compatible" content="IE=edge"
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
+    - if attr? 'description'
+      meta name="description" content=(attr 'description')
+    - if attr? 'keywords'
+      meta name="keywords" content=(attr 'keywords')
+    - if attr? 'authors'
+      meta name="author" content=(attr 'authors')
+    - if attr? 'copyright'
+      meta name="copyright" content=(attr 'copyright')
+    - if attr? 'stem'
+      link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_HTMLorMML" as="script"
+    title #{doctitle sanitize: true, use_fallback: true}
+    - unless docinfo.empty?
+      = docinfo
+  body
+    - unless (docinfo :header).empty?
+      = docinfo :header
+    article
+      - unless noheader
+        header
+          - if header?
+            h1 #{header.title}
+            - authors.each do |author|
+              address class="author"
+                = 'By '
+                a rel="author" href="#" #{sub_replacements author.name}
+            - if attr? 'published_at'
+              span class="published"
+                = 'On '
+                time datetime=(attr 'published_at') =(attr 'published_at')
+      - if (attr? 'toc') && (attr? 'toc-placement', 'auto')
+        nav id="toc"
+          h2 id="toctitle" =(attr 'toc-title')
+          = converter.convert document, 'outline'
+      main
+        = content
+    - if footnotes? && !(attr? 'nofootnotes')
+      section id="footnotes"
+        - footnotes.each do |footnote|
+          aside id="_footnotedef_#{footnote.index}"
+            a href="#_footnoteref_#{footnote.index}" #{footnote.index}
+            = ". #{footnote.text}"
+    - unless nofooter
+      footer
+        - if attr? 'last-update-label'
+          = attr 'last-update-label'
+          time datetime=(attr 'docdatetime') =(attr 'docdatetime')
+    - if attr? 'stem'
+      - eqnums_val = attr 'eqnums', 'none'
+      - eqnums_val = 'AMS' if eqnums_val.empty?
+      - eqnums_opt = %( equationNumbers: { autoNumber: "#{eqnums_val}" } )
+      |
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          messageStyle: "none",
+          tex2jax: {
+            inlineMath: [["\\(", "\\)"]],
+            displayMath: [["\\[", "\\]"]],
+            ignoreClass: "nostem|nolatexmath"
+          },
+          asciimath2jax: {
+            delimiters: [["\\$", "\\$"]],
+            ignoreClass: "nostem|noasciimath"
+          },
+          TeX: {#{eqnums_opt}}
+        })
+        MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+          MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+            if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+              data.math.root.display = "block"
+            }
+            return data
+          })
+        })
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+    - unless (docinfo :footer).empty?
+      = docinfo :footer

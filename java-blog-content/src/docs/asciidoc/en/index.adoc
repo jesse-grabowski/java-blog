@@ -2,7 +2,7 @@
 :author: Jesse Grabowski
 :created_at: 2022-05-27
 :published_at: 2022-05-27
-:copyright: © 2022 {author}
+:copyright: 2022 {author}
 
 :description: The home page of my blog yay
 :backstory: I wanted to make a blog
@@ -20,7 +20,11 @@
 
 Let's put some content here and see what happens. "Do the quotes work?"
 
-[plantuml, test-image, format=svg, alt="Diagram showing key exchange"]
+=== Deeper Section
+
+Test
+
+[plantuml, test-image, format=svg, alt="Diagram showing key exchange", caption="my caption"]
 ....
 @startuml
 !theme sketchy-outline
@@ -29,7 +33,11 @@ bob --> alice : hello
 alice --> bob : world
 ....
 
+=== Another Section
+
 And here's a bit of math
+
+== Math
 
 [stem, alt="Some math"]
 ++++
@@ -41,5 +49,7 @@ f(x,y)= \left\{ \begin{array}{ll}
 \right. \\
 \]
 ++++
+
+Test
 
 xref:other.adoc[Click me]

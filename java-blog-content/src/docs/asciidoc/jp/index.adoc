@@ -1,3 +1,4 @@
+:lang: jp
 = Hello In Japanese
 
 [plantuml, test-image, format=svg]

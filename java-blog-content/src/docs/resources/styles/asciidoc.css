@@ -1,9 +1,18 @@
-.imageblock .content {
+figure {
     display: flex;
     justify-content: center;
+    flex-flow: row wrap;
 }
 
-.toc {
+img {
+    flex: 1
+}
+
+figcaption {
+    flex: 1
+}
+
+#toc {
     border: 0;
     clip: rect(0 0 0 0);
     height: 1px;

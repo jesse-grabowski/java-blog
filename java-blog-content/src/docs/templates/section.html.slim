@@ -1,0 +1,28 @@
+- if caption
+  - s_title = captioned_title
+- elsif numbered && level <= (document.attributes['sectnumlevels'] || 3).to_i
+  - s_title = %(#{sectnum} #{title})
+- else
+  - s_title = title
+
+- if id
+  - if document.attributes['sectlinks']
+    - s_title = %(<a class="link" href="##{id}">#{s_title}</a>)
+  - if document.attributes['sectanchors']
+    - if document.attributes['sectanchors'] == 'after'
+      - s_title = %(#{s_title}<a class="anchor" href="##{id}"></a>)
+    - else
+      - s_title = %(<a class="anchor" href="##{id}"></a>#{s_title})
+- else
+  - s_id = ''
+
+- if level == 0
+  section
+    h1 id="##{id}"
+      = s_title
+    = content
+- else
+  section
+    *{tag: %(h#{level + 1}),  id: id}
+      = s_title
+    = content

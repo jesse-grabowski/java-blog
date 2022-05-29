@@ -10,5 +10,6 @@ public class BlogExtensionRegistry implements ExtensionRegistry {
   public void register(Asciidoctor asciidoctor) {
     JavaExtensionRegistry javaExtensionRegistry = asciidoctor.javaExtensionRegistry();
     javaExtensionRegistry.docinfoProcessor(BlogPostingDocinfoProcessor.class);
+    javaExtensionRegistry.postprocessor(ThymeleafHtmlPostprocessor.class);
   }
 }

@@ -15,8 +15,42 @@
         <java.version>17</java.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>rubygems</groupId>
+            <artifactId>slim</artifactId>
+            <version>4.1.0</version>
+            <type>gem</type>
+        </dependency>
+    </dependencies>
+
     <build>
+        <extensions>
+            <extension>
+                <groupId>org.torquebox.mojo</groupId>
+                <artifactId>mavengem-wagon</artifactId>
+                <version>1.0.3</version>
+            </extension>
+        </extensions>
         <plugins>
+            <plugin>
+                <groupId>de.saumya.mojo</groupId>
+                <artifactId>gem-maven-plugin</artifactId>
+                <version>2.0.1</version>
+                <configuration>
+                    <gemHome>${project.build.directory}/gems</gemHome>
+                    <gemPath>${project.build.directory}/gems</gemPath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-gems</id>
+                        <goals>
+                            <goal>initialize</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
@@ -41,11 +75,17 @@
                             <goal>process-asciidoc</goal>
                         </goals>
                         <configuration>
+                            <gemPath>${project.build.directory}/gems</gemPath>
+
                             <requires>
                                 <require>asciidoctor-diagram</require>
+                                <require>slim</require>
                             </requires>
 
-                            <outputDirectory>${project.build.outputDirectory}/META-INF/resources</outputDirectory>
+                            <templateEngine>slim</templateEngine>
+                            <templateDirs>${project.basedir}/src/docs/templates</templateDirs>
+
+                            <outputDirectory>${project.build.outputDirectory}/templates</outputDirectory>
                             <preserveDirectories>true</preserveDirectories>
 
                             <backend>html5</backend>
@@ -61,6 +101,55 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-static-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/docs/resources</directory>
+                                    <includes>
+                                        <include>**/*.js</include>
+                                        <include>**/*.css</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-generated-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.outputDirectory}/templates</directory>
+                                    <includes>
+                                        <include>**/*.svg</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>mavengems</id>
+            <url>mavengem:https://rubygems.org</url>
+        </repository>
+    </repositories>
 </project>
