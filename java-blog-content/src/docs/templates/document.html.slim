@@ -15,7 +15,9 @@ html lang=(attr 'lang', 'en')
     - if attr? 'stem'
       link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_HTMLorMML" as="script"
     - if attr? 'linkcss'
-      link rel="stylesheet" href="#{normalize_web_path 'style.min.css', (attr 'stylesdir', ''), false}"
+      link rel="preload" href="#{normalize_web_path 'style.min.css', (attr 'stylesdir', ''), false}" as="style" onload="this.onload=null;this.rel='stylesheet'"
+      noscript
+        link rel="stylesheet" href="#{normalize_web_path 'style.min.css', (attr 'stylesdir', ''), false}"
     title #{doctitle sanitize: true, use_fallback: true}
     - unless docinfo.empty?
       = docinfo

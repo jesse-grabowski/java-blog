@@ -96,6 +96,7 @@
                             <backend>html5</backend>
                             <attributes>
                                 <outroot>${project.build.outputDirectory}/templates</outroot>
+                                <diagram-svg-type>interactive</diagram-svg-type>
                                 <stylesheet>style.min.css</stylesheet>
                                 <stylesdir>/styles</stylesdir>
                                 <source-highlighter>coderay</source-highlighter>
@@ -142,6 +143,7 @@
                                     <directory>${project.build.outputDirectory}/templates</directory>
                                     <includes>
                                         <include>**/*.svg</include>
+                                        <include>**/*.png</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -163,6 +165,7 @@
                             <target>
                                 <delete>
                                     <fileset dir="${project.build.outputDirectory}/templates" includes="**/*.svg"/>
+                                    <fileset dir="${project.build.outputDirectory}/templates" includes="**/*.png"/>
                                     <fileset dir="${project.build.outputDirectory}/templates" includes="**/*.cache"/>
                                 </delete>
                                 <delete includeemptydirs="true">

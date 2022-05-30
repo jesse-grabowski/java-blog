@@ -1,4 +1,21 @@
-figure
-  img src=image_uri(attr :target) alt=(attr :alt) width=(attr :width) height=(attr :height)
+- target = attr :target
+- width_attr = (attr? 'width') ? %( width="#{attr 'width'}") : ''
+- height_attr = (attr? 'height') ? %( height="#{attr 'height'}") : ''
+-
+- if ((attr? 'format', 'svg') || (target.include? '.svg')) && document.safe < 20
+  - if option? 'inline'
+    - img = (read_svg_contents self, target) || %(<span class="alt">#{alt}</span>)
+  - elsif option? 'interactive'
+    - fallback = %(<img src="#{src = resolve_image_path(attr :target)}" alt="#{alt.gsub '"', '&quot;'}"#{width_attr}#{height_attr}/>)
+    - img = %(<object type="image/svg+xml" alt="#{alt.gsub '"', '&quot;'}" data="#{src = resolve_image_path(attr :target, 'outdir')}"#{width_attr}#{height_attr}>#{fallback}</object>)
+  - else
+    - img = %(<img src="#{src = resolve_image_path(attr :target)}" alt="#{alt.gsub '"', '&quot;'}"#{width_attr}#{height_attr}/>)
+- else
+  - img = %(<img src="#{src = resolve_image_path(attr :target)}" alt="#{alt.gsub '"', '&quot;'}"#{width_attr}#{height_attr}/>)
+- if (attr? 'link') && ((href_attr_val = attr 'link') != 'self' || (href_attr_val = src))
+  - img = %(<a class="image" href="#{href_attr_val}"#{(append_link_constraint_attrs self).join}>#{img}</a>)
+
+figure id=(attr 'id')
+  = img
   - if attr? 'alt'
     figcaption =(attr 'alt')

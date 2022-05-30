@@ -27,6 +27,14 @@ public class ThymeleafHtmlPostprocessor extends Postprocessor {
       }
     }
 
+    for (Element linked : doc.getElementsByTag("object")) {
+      if ("image/svg+xml".equals(linked.attr("type"))) {
+        String url = linked.absUrl("data");
+        linked.removeAttr("data");
+        linked.attr("th:data", "@{%s}".formatted(StringUtils.removeStart(url, "http://localhost")));
+      }
+    }
+
     for (Element linked : doc.getElementsByAttribute("href")) {
       String url = linked.absUrl("href");
       linked.removeAttr("href");
