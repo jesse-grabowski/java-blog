@@ -22,6 +22,11 @@
             <version>4.1.0</version>
             <type>gem</type>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -70,7 +75,7 @@
                 <executions>
                     <execution>
                         <id>convert-to-html</id>
-                        <phase>generate-resources</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>process-asciidoc</goal>
                         </goals>
@@ -90,6 +95,7 @@
 
                             <backend>html5</backend>
                             <attributes>
+                                <outroot>${project.build.outputDirectory}/templates</outroot>
                                 <stylesheet>style.min.css</stylesheet>
                                 <stylesdir>/styles</stylesdir>
                                 <source-highlighter>coderay</source-highlighter>
@@ -106,7 +112,7 @@
                 <executions>
                     <execution>
                         <id>copy-static-resources</id>
-                        <phase>generate-resources</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -125,7 +131,7 @@
                     </execution>
                     <execution>
                         <id>copy-generated-resources</id>
-                        <phase>generate-resources</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -142,6 +148,51 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete>
+                                    <fileset dir="${project.build.outputDirectory}/templates" includes="**/*.svg"/>
+                                    <fileset dir="${project.build.outputDirectory}/templates" includes="**/*.cache"/>
+                                </delete>
+                                <delete includeemptydirs="true">
+                                    <fileset dir="${project.build.outputDirectory}/templates">
+                                        <and>
+                                            <size value="0"/>
+                                            <type type="dir"/>
+                                        </and>
+                                    </fileset>
+                                </delete>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.jessegrabowski</groupId>
+                <artifactId>java-blog-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-template-router</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <templateDirectory>${project.build.outputDirectory}/templates</templateDirectory>
+                    <packageName>com.jessegrabowski</packageName>
+                </configuration>
             </plugin>
         </plugins>
     </build>

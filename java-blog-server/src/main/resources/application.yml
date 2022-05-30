@@ -1,6 +1,14 @@
 spring:
   web:
     locale: en
+    resources:
+      chain:
+        strategy:
+          content:
+            enabled: true
+      cache:
+        cachecontrol:
+          max-age: 365d
 
 blog:
   content:

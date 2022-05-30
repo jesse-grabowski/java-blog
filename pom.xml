@@ -8,6 +8,7 @@
         <module>java-blog-content</module>
         <module>java-blog-server</module>
         <module>java-blog-content-extensions</module>
+        <module>java-blog-maven-plugin</module>
     </modules>
 
     <parent>

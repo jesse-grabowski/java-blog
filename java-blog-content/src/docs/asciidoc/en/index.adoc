@@ -24,13 +24,15 @@ Let's put some content here and see what happens. "Do the quotes work?"
 
 Test
 
-[plantuml, test-image, format=svg, alt="Diagram showing key exchange", caption="my caption"]
+[plantuml, test-image, format=svg, alt="Diagram showing key exchange"]
 ....
 @startuml
 !theme sketchy-outline
 
 bob --> alice : hello
 alice --> bob : world
+
+caption This is a caption
 ....
 
 === Another Section
