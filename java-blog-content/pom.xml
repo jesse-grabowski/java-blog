@@ -99,10 +99,13 @@
                                 <diagram-svg-type>interactive</diagram-svg-type>
                                 <stylesheet>style.min.css</stylesheet>
                                 <stylesdir>/styles</stylesdir>
+                                <scriptsdir>/scripts</scriptsdir>
                                 <source-highlighter>coderay</source-highlighter>
                                 <imagesdir>.</imagesdir>
                                 <linkcss>true</linkcss>
                                 <docinfo>shared</docinfo>
+                                <skiplink-text-en>Skip to main content</skiplink-text-en>
+                                <skiplink-text-jp>メインコンテンツにスキップ</skiplink-text-jp>
                             </attributes>
                         </configuration>
                     </execution>
@@ -125,6 +128,9 @@
                                     <includes>
                                         <include>**/*.js</include>
                                         <include>**/*.css</include>
+                                        <include>**/*.ttf</include>
+                                        <include>**/*.woff</include>
+                                        <include>**/*.woff2</include>
                                     </includes>
                                 </resource>
                             </resources>

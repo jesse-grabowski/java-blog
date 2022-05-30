@@ -45,10 +45,10 @@ And here's a bit of math
 ++++
 \[
 f(x,y)= \left\{ \begin{array}{ll}
-\frac{x^2y}{x^4+y^2} & \mbox{if $(x,y) \neq (0,0)$} \\
-0 & \mbox{if $(x,y) = (0,0)$} \\
+\frac{x^2y}{x^4+y^2} & {\text{if } (x,y) \neq (0,0)} \\
+0 & {\text{if } (x,y) = (0,0)}
 \end{array}
-\right. \\
+\right.
 \]
 ++++
 

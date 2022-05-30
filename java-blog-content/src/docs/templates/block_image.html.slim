@@ -7,7 +7,7 @@
     - img = (read_svg_contents self, target) || %(<span class="alt">#{alt}</span>)
   - elsif option? 'interactive'
     - fallback = %(<img src="#{src = resolve_image_path(attr :target)}" alt="#{alt.gsub '"', '&quot;'}"#{width_attr}#{height_attr}/>)
-    - img = %(<object type="image/svg+xml" alt="#{alt.gsub '"', '&quot;'}" data="#{src = resolve_image_path(attr :target, 'outdir')}"#{width_attr}#{height_attr}>#{fallback}</object>)
+    - img = %(<object type="image/svg+xml" aria-label="#{alt.gsub '"', '&quot;'}" data="#{src = resolve_image_path(attr :target, 'outdir')}"#{width_attr}#{height_attr}>#{fallback}</object>)
   - else
     - img = %(<img src="#{src = resolve_image_path(attr :target)}" alt="#{alt.gsub '"', '&quot;'}"#{width_attr}#{height_attr}/>)
 - else

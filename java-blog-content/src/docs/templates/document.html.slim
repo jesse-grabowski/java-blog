@@ -13,7 +13,11 @@ html lang=(attr 'lang', 'en')
     - if attr? 'copyright'
       meta name="copyright" content=(attr 'copyright')
     - if attr? 'stem'
-      link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_HTMLorMML" as="script"
+      link rel="preload" href="#{normalize_web_path 'katex.min.css', (attr 'stylesdir', ''), false}" as="style" onload="this.onload=null;this.rel='stylesheet'"
+      noscript
+        link rel="stylesheet" href="#{normalize_web_path 'katex.min.css', (attr 'stylesdir', ''), false}"
+      script defer="" src="#{normalize_web_path 'katex.min.js', (attr 'scriptsdir', ''), false}"
+      script defer="" src="#{normalize_web_path 'auto-render.min.js', (attr 'scriptsdir', ''), false}"
     - if attr? 'linkcss'
       link rel="preload" href="#{normalize_web_path 'style.min.css', (attr 'stylesdir', ''), false}" as="style" onload="this.onload=null;this.rel='stylesheet'"
       noscript
@@ -22,6 +26,7 @@ html lang=(attr 'lang', 'en')
     - unless docinfo.empty?
       = docinfo
   body
+    a id="skip-nav" class="sr-only" href="#main-content" #{attr %(skiplink-text-#{attr 'lang'})}
     - unless (docinfo :header).empty?
       = docinfo :header
     article
@@ -36,10 +41,10 @@ html lang=(attr 'lang', 'en')
               span class="published"
                 time datetime=(attr 'published_at') =(attr 'published_at')
       - if (attr? 'toc') && (attr? 'toc-placement', 'auto')
-        nav id="toc"
+        nav id="toc" class="sr-only"
           h2 id="toctitle" =(attr 'toc-title')
           = converter.convert document, 'outline'
-      main
+      main id="main-content"
         = content
     - if footnotes? && !(attr? 'nofootnotes')
       section id="footnotes"
@@ -54,33 +59,16 @@ html lang=(attr 'lang', 'en')
           = ' '
           time datetime=(attr 'docdatetime') =(attr 'docdatetime')
     - if attr? 'stem'
-      - eqnums_val = attr 'eqnums', 'none'
-      - eqnums_val = 'AMS' if eqnums_val.empty?
-      - eqnums_opt = %( equationNumbers: { autoNumber: "#{eqnums_val}" } )
       |
-        <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-          messageStyle: "none",
-          tex2jax: {
-            inlineMath: [["\\(", "\\)"]],
-            displayMath: [["\\[", "\\]"]],
-            ignoreClass: "nostem|nolatexmath"
-          },
-          asciimath2jax: {
-            delimiters: [["\\$", "\\$"]],
-            ignoreClass: "nostem|noasciimath"
-          },
-          TeX: {#{eqnums_opt}}
-        })
-        MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
-          MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
-            if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
-              data.math.root.display = "block"
-            }
-            return data
-          })
-        })
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                renderMathInElement(document.body, {
+                  delimiters: [
+                      {left: '\\(', right: '\\)', display: false},
+                      {left: '\\[', right: '\\]', display: true}
+                  ]
+                });
+            });
         </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
     - unless (docinfo :footer).empty?
       = docinfo :footer

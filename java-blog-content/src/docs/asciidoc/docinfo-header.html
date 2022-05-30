@@ -1,0 +1,20 @@
+<header>
+    <a href="/">JesseGrabowski</a>
+    <nav id="pages">
+        <ul>
+            <li><a href="/{lang}/">Posts</a></li>
+            <li><a href="/{lang}/jesse-grabowski">About</a></li>
+        </ul>
+    </nav>
+    <nav id="languages">
+        <ul>
+            <li th:unless="${altlang == '{lang}'}" th:each="altlang: ${alternateLanguages}">
+                <a rel="alternate" th:href="@{|/${altlang}${template}|}" th:hreflang="${altlang}" th:lang="${altlang}" th:switch="${altlang}">
+                    <span th:case="en" th:remove="tag">English</span>
+                    <span th:case="jp" th:remove="tag">日本語</span>
+                    <span th:case="*" th:remove="tag">Other</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>

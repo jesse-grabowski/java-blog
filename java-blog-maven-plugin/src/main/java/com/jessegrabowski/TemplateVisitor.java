@@ -4,14 +4,14 @@ import com.squareup.javapoet.*;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
+import java.util.*;
 import javax.lang.model.element.Modifier;
+import org.apache.commons.lang3.StringUtils;
 
 public class TemplateVisitor implements FileVisitor<Path> {
 
   private final MethodSpec.Builder methodSpecBuilder;
+  private final Map<String, List<String>> templateAlternateLanguages;
   private final Deque<CodeBlock.Builder> chain;
   private final Deque<String> path;
 
@@ -25,6 +25,7 @@ public class TemplateVisitor implements FileVisitor<Path> {
                     ClassName.bestGuess(
                         "org.springframework.web.servlet.function.ServerResponse")));
 
+    this.templateAlternateLanguages = new HashMap<>();
     this.chain = new ArrayDeque<>();
     this.path = new ArrayDeque<>();
   }
@@ -42,15 +43,37 @@ public class TemplateVisitor implements FileVisitor<Path> {
       return FileVisitResult.CONTINUE;
     }
 
+    String languageAgnosticTemplate = getLanguageAgnosticTemplate(file);
+    String language = getLanguage();
+    templateAlternateLanguages
+        .computeIfAbsent(languageAgnosticTemplate, k -> new ArrayList<>())
+        .add(language);
+
     CodeBlock.Builder builder = chain.peek();
     builder.add(
-        "$L($L, request -> $T.ok().render($S))",
+        "$L($L, request -> $T.ok().render($S, $T.of($S, $L, $S, $S, $S, $S)))",
         chainIfRequired(builder, "route", "andRoute"),
         getFilePredicate(file),
         ClassName.bestGuess("org.springframework.web.servlet.function.ServerResponse"),
-        getTemplate(file));
+        getTemplate(file),
+        ClassName.bestGuess("java.util.Map"),
+        "alternateLanguages",
+        CodeBlock.of("getAlternateLanguages($S)", languageAgnosticTemplate),
+        "language",
+        language,
+        "template",
+        languageAgnosticTemplate);
 
     return FileVisitResult.CONTINUE;
+  }
+
+  private String getLanguage() {
+    Iterator<String> itr = path.iterator();
+    return itr.hasNext() ? itr.next() : null;
+  }
+
+  private String getLanguageAgnosticTemplate(Path file) {
+    return StringUtils.removeStart(getTemplate(file), getLanguage());
   }
 
   private CodeBlock getFilePredicate(Path file) {
@@ -158,7 +181,38 @@ public class TemplateVisitor implements FileVisitor<Path> {
                     ClassName.bestGuess("org.springframework.context.annotation.Configuration"))
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(methodSpecBuilder.build())
+                .addMethod(
+                    MethodSpec.methodBuilder("getAlternateLanguages")
+                        .returns(
+                            ParameterizedTypeName.get(
+                                ClassName.bestGuess("java.util.List"),
+                                ClassName.bestGuess("java.lang.String")))
+                        .addParameter(
+                            ParameterSpec.builder(
+                                    ClassName.bestGuess("java.lang.String"), "template")
+                                .build())
+                        .addCode(getAlternateLanguagesLookupTable())
+                        .build())
                 .build())
         .build();
+  }
+
+  private CodeBlock getAlternateLanguagesLookupTable() {
+    List<CodeBlock> entries = new ArrayList<>();
+    for (Map.Entry<String, List<String>> alternates : templateAlternateLanguages.entrySet()) {
+      List<String> sortedLanguages = new ArrayList<>(alternates.getValue());
+      Collections.sort(sortedLanguages);
+      List<CodeBlock> literals = sortedLanguages.stream().map(l -> CodeBlock.of("$S", l)).toList();
+      entries.add(
+          CodeBlock.of(
+              "case $S -> $T.of($L)",
+              alternates.getKey(),
+              ClassName.bestGuess("java.util.List"),
+              CodeBlock.join(literals, ",")));
+    }
+    return CodeBlock.of(
+        "return switch(template) { $L; default -> $T.of(); };",
+        CodeBlock.join(entries, ";"),
+        ClassName.bestGuess("java.util.List"));
   }
 }
