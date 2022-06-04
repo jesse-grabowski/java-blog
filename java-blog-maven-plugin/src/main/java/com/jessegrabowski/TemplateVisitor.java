@@ -21,14 +21,41 @@ public class TemplateVisitor implements FileVisitor<Path> {
 
   public TemplateVisitor() {
     this.typeSpecBuilder =
-        TypeSpec.classBuilder("TemplateRouterConfiguration")
-            .addAnnotation(
-                ClassName.bestGuess("org.springframework.context.annotation.Configuration"))
+        TypeSpec.classBuilder("TemplateRouterFactory")
+            .addField(
+                FieldSpec.builder(
+                        ClassName.bestGuess("java.lang.String"),
+                        "reportUri",
+                        Modifier.PRIVATE,
+                        Modifier.FINAL)
+                    .build())
+            .addField(
+                FieldSpec.builder(
+                        ClassName.bestGuess("java.lang.String"),
+                        "reportToHeader",
+                        Modifier.PRIVATE,
+                        Modifier.FINAL)
+                    .build())
+            .addMethod(
+                MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(
+                        ParameterSpec.builder(ClassName.bestGuess("java.lang.String"), "reportUri")
+                            .build())
+                    .addParameter(
+                        ParameterSpec.builder(
+                                ClassName.bestGuess("java.lang.String"), "reportToHeader")
+                            .build())
+                    .addCode(
+                        CodeBlock.builder()
+                            .addStatement("this.reportUri = reportUri")
+                            .addStatement("this.reportToHeader = reportToHeader")
+                            .build())
+                    .build())
             .addModifiers(Modifier.PUBLIC);
     this.methodSpecBuilder =
-        MethodSpec.methodBuilder("templateRouterFunction")
+        MethodSpec.methodBuilder("create")
             .addModifiers(Modifier.PUBLIC)
-            .addAnnotation(ClassName.bestGuess("org.springframework.context.annotation.Bean"))
             .returns(
                 ParameterizedTypeName.get(
                     ClassName.bestGuess("org.springframework.web.servlet.function.RouterFunction"),
@@ -84,6 +111,15 @@ public class TemplateVisitor implements FileVisitor<Path> {
         getFilePredicate(file),
         handlerMethod);
 
+    List<CodeBlock> headers = new ArrayList<>();
+    headers.add(csp.getPolicy());
+    headers.add(CodeBlock.of(".header($S, reportToHeader)", "Report-To"));
+    headers.add(
+        CodeBlock.of(
+            ".header($S, $S)",
+            "NEL",
+            "{\"report_to\":\"default\",\"max_age\":31536000,\"include_subdomains\":true}"));
+
     typeSpecBuilder.addMethod(
         MethodSpec.methodBuilder(handlerMethod)
             .addModifiers(Modifier.PRIVATE)
@@ -99,7 +135,7 @@ public class TemplateVisitor implements FileVisitor<Path> {
                 CodeBlock.of(
                     "return $T.ok()$L.render($S, $T.ofEntries($L));",
                     ClassName.bestGuess("org.springframework.web.servlet.function.ServerResponse"),
-                    csp.getPolicy(),
+                    CodeBlock.join(headers, ""),
                     getTemplate(file),
                     ClassName.bestGuess("java.util.Map"),
                     CodeBlock.join(modelEntries, ",")))

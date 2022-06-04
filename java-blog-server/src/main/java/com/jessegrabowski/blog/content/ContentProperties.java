@@ -1,6 +1,5 @@
 package com.jessegrabowski.blog.content;
 
-import java.util.Set;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -8,5 +7,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "blog.content")
 public class ContentProperties {
 
-  private Set<String> supportedLanguages;
+  private ContentHeadersProperties headers;
+
+  @Data
+  public static class ContentHeadersProperties {
+    private String reportUri;
+    private String reportTo;
+  }
 }

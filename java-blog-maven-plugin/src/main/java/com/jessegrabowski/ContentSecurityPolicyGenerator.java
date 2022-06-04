@@ -104,6 +104,8 @@ public class ContentSecurityPolicyGenerator {
 
     StringBuilder cspBuilder = new StringBuilder();
     cspBuilder.append("default-src 'none';");
+    cspBuilder.append("report-uri %s;");
+    cspBuilder.append("report-to default;");
     cspBuilder.append("font-src 'self';");
 
     int scriptNonceFormatCount = 0;
@@ -204,6 +206,7 @@ public class ContentSecurityPolicyGenerator {
     CodeBlock.Builder policyBuilder = CodeBlock.builder();
     policyBuilder.add(".header($S, $S", "Content-Security-Policy", cspBuilder.toString());
     List<CodeBlock> blocks = new ArrayList<>();
+    blocks.add(CodeBlock.of("reportUri"));
     if (hasScriptNonce) {
       csp.getModelEntries()
           .add(
@@ -220,14 +223,11 @@ public class ContentSecurityPolicyGenerator {
           .add(
               CodeBlock.of(
                   "$T.entry($S, styleNonce)", ClassName.bestGuess("java.util.Map"), "styleNonce"));
-      for (int i = 0; i < scriptNonceFormatCount; i++) {
+      for (int i = 0; i < styleNonceFormatCount; i++) {
         blocks.add(CodeBlock.of("styleNonce"));
       }
     }
-    if (!blocks.isEmpty()) {
-      policyBuilder.add(".formatted($L)", CodeBlock.join(blocks, ", "));
-    }
-    policyBuilder.add(CodeBlock.of(")"));
+    policyBuilder.add(".formatted($L))", CodeBlock.join(blocks, ", "));
     csp.setPolicy(policyBuilder.build());
 
     try {

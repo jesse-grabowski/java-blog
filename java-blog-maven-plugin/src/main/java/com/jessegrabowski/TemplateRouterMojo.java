@@ -38,7 +38,7 @@ public class TemplateRouterMojo extends AbstractMojo {
     }
 
     try (Writer writer =
-        Files.newBufferedWriter(outputPath.resolve("TemplateRouterConfiguration.java"))) {
+        Files.newBufferedWriter(outputPath.resolve("TemplateRouterFactory.java"))) {
       TemplateVisitor visitor = new TemplateVisitor();
       Files.walkFileTree(Paths.get(templateDirectory), visitor);
       visitor.toJavaFile(packageName).writeTo(writer);

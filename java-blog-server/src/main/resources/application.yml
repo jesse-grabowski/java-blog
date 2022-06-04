@@ -27,6 +27,7 @@ server:
 
 blog:
   content:
-    supported-languages:
-      - en
-      - ja
+    host: 'http://localhost:8080'
+    headers:
+      report-uri: '${blog.content.host}/api/telemetry/csp'
+      report-to: '{"group":"default","max_age":31536000,"endpoints":[{"url":"${blog.content.host}/api/telemetry/reports"}],"include_subdomains":true}'
