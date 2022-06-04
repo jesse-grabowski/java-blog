@@ -27,7 +27,6 @@ server:
 
 blog:
   content:
-    host: 'http://localhost:8080'
     headers:
-      report-uri: '${blog.content.host}/api/telemetry/csp'
-      report-to: '{"group":"default","max_age":31536000,"endpoints":[{"url":"${blog.content.host}/api/telemetry/reports"}],"include_subdomains":true}'
+      report-uri: 'https://jessegrabowski.report-uri.com/r/d/csp/enforce'
+      report-to: '{"group":"default","max_age":31536000,"endpoints":[{"url":"https://jessegrabowski.report-uri.com/a/d/g"}],"include_subdomains":true}'
