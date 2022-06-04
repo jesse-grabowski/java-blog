@@ -8,14 +8,8 @@ spring:
             enabled: true
       cache:
         cachecontrol:
-          max-age: 365d
-
-
-blog:
-  content:
-    supported-languages:
-      - en
-      - jp
+          max-age: 0
+          must-revalidate: true
 
 server:
   compression:
@@ -30,3 +24,9 @@ server:
       - application/json
       - application/xml
       - image/svg+xml
+
+blog:
+  content:
+    supported-languages:
+      - en
+      - ja

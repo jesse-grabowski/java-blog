@@ -1,4 +1,4 @@
-:lang: jp
+:lang: ja
 = Hello In Japanese
 
 [plantuml, test-image, format=svg]

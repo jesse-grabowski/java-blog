@@ -11,7 +11,7 @@
             <li th:unless="${altlang == '{lang}'}" th:each="altlang: ${alternateLanguages}">
                 <a rel="alternate" th:href="@{|/${altlang}${template}|}" th:hreflang="${altlang}" th:lang="${altlang}" th:switch="${altlang}">
                     <span th:case="en" th:remove="tag">English</span>
-                    <span th:case="jp" th:remove="tag">日本語</span>
+                    <span th:case="ja" th:remove="tag">日本語</span>
                     <span th:case="*" th:remove="tag">Other</span>
                 </a>
             </li>

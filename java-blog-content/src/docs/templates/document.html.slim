@@ -13,13 +13,11 @@ html lang=(attr 'lang', 'en')
     - if attr? 'copyright'
       meta name="copyright" content=(attr 'copyright')
     - if attr? 'stem'
-      link rel="preload" href="#{normalize_web_path 'katex.min.css', (attr 'stylesdir', ''), false}" as="style" onload="this.onload=null;this.rel='stylesheet'"
-      noscript
-        link rel="stylesheet" href="#{normalize_web_path 'katex.min.css', (attr 'stylesdir', ''), false}"
-      script defer="" src="#{normalize_web_path 'katex.min.js', (attr 'scriptsdir', ''), false}"
-      script defer="" src="#{normalize_web_path 'auto-render.min.js', (attr 'scriptsdir', ''), false}"
+      link id="katex-preload" rel="preload" href="#{normalize_web_path 'katex.min.css', (attr 'stylesdir', ''), false}" as="style"
+      script defer="" src="#{normalize_web_path 'katex.min.js', (attr 'scriptsdir', ''), false}" nonce=""
+      script defer="" src="#{normalize_web_path 'auto-render.min.js', (attr 'scriptsdir', ''), false}" nonce=""
     - if attr? 'linkcss'
-      link rel="preload" href="#{normalize_web_path 'style.min.css', (attr 'stylesdir', ''), false}" as="style" onload="this.onload=null;this.rel='stylesheet'"
+      link id="css-preload" rel="preload" href="#{normalize_web_path 'style.min.css', (attr 'stylesdir', ''), false}" as="style"
       noscript
         link rel="stylesheet" href="#{normalize_web_path 'style.min.css', (attr 'stylesdir', ''), false}"
     title #{doctitle sanitize: true, use_fallback: true}
@@ -58,10 +56,28 @@ html lang=(attr 'lang', 'en')
           = attr 'last-update-label'
           = ' '
           time datetime=(attr 'docdatetime') =(attr 'docdatetime')
+    - if attr? 'linkcss'
+      |
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var cssPreload = document.getElementById('css-preload');
+                var cssStyle = document.createElement("link");
+                cssStyle.href = cssPreload.href;
+                cssStyle.rel = "stylesheet";
+                cssStyle.integrity = cssPreload.integrity;
+                document.head.appendChild(cssStyle);
+            });
+        </script>
     - if attr? 'stem'
       |
         <script>
             document.addEventListener("DOMContentLoaded", function() {
+                var katexPreload = document.getElementById('katex-preload');
+                var katexStyle = document.createElement("link");
+                katexStyle.href = katexPreload.href;
+                katexStyle.rel = "stylesheet";
+                katexStyle.integrity = katexPreload.integrity;
+                document.head.appendChild(katexStyle);
                 renderMathInElement(document.body, {
                   delimiters: [
                       {left: '\\(', right: '\\)', display: false},

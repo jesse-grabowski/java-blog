@@ -1,0 +1,18 @@
+:doctype: article
+:author: Jesse Grabowski
+:created_at: 2022-05-30
+:published_at: 2022-05-30
+:copyright: 2022 {author}
+
+:description: A test post
+:backstory: Checking how page nesting works
+:abstract: My first blog post
+:audience: General
+:keywords: software, blogging
+:teaches: Software Development
+:lang: en
+
+:toc:
+= First Post
+
+Let's see if this links correctly

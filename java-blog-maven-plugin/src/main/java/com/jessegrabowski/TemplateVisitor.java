@@ -5,19 +5,29 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
 import org.apache.commons.lang3.StringUtils;
 
 public class TemplateVisitor implements FileVisitor<Path> {
 
+  private final ContentSecurityPolicyGenerator cspGenerator = new ContentSecurityPolicyGenerator();
+
   private final MethodSpec.Builder methodSpecBuilder;
+  private final TypeSpec.Builder typeSpecBuilder;
   private final Map<String, List<String>> templateAlternateLanguages;
   private final Deque<CodeBlock.Builder> chain;
   private final Deque<String> path;
 
   public TemplateVisitor() {
+    this.typeSpecBuilder =
+        TypeSpec.classBuilder("TemplateRouterConfiguration")
+            .addAnnotation(
+                ClassName.bestGuess("org.springframework.context.annotation.Configuration"))
+            .addModifiers(Modifier.PUBLIC);
     this.methodSpecBuilder =
         MethodSpec.methodBuilder("templateRouterFunction")
+            .addModifiers(Modifier.PUBLIC)
             .addAnnotation(ClassName.bestGuess("org.springframework.context.annotation.Bean"))
             .returns(
                 ParameterizedTypeName.get(
@@ -43,32 +53,76 @@ public class TemplateVisitor implements FileVisitor<Path> {
       return FileVisitResult.CONTINUE;
     }
 
+    String handlerMethod = getHandlerMethodName(file);
     String languageAgnosticTemplate = getLanguageAgnosticTemplate(file);
     String language = getLanguage();
     templateAlternateLanguages
         .computeIfAbsent(languageAgnosticTemplate, k -> new ArrayList<>())
         .add(language);
 
+    ContentSecurityPolicyGenerator.ContentSecurityPolicy csp = cspGenerator.generate(file);
+
+    List<CodeBlock> modelEntries = new ArrayList<>();
+    modelEntries.add(
+        CodeBlock.of(
+            "$T.entry($S, $L)",
+            ClassName.bestGuess("java.util.Map"),
+            "alternateLanguages",
+            CodeBlock.of("getAlternateLanguages($S)", languageAgnosticTemplate)));
+    modelEntries.add(
+        CodeBlock.of(
+            "$T.entry($S, $S)",
+            ClassName.bestGuess("java.util.Map"),
+            "template",
+            languageAgnosticTemplate));
+    modelEntries.addAll(csp.getModelEntries());
+
     CodeBlock.Builder builder = chain.peek();
     builder.add(
-        "$L($L, request -> $T.ok().render($S, $T.of($S, $L, $S, $S, $S, $S)))",
+        "$L($L, this::$L)",
         chainIfRequired(builder, "route", "andRoute"),
         getFilePredicate(file),
-        ClassName.bestGuess("org.springframework.web.servlet.function.ServerResponse"),
-        getTemplate(file),
-        ClassName.bestGuess("java.util.Map"),
-        "alternateLanguages",
-        CodeBlock.of("getAlternateLanguages($S)", languageAgnosticTemplate),
-        "language",
-        language,
-        "template",
-        languageAgnosticTemplate);
+        handlerMethod);
+
+    typeSpecBuilder.addMethod(
+        MethodSpec.methodBuilder(handlerMethod)
+            .addModifiers(Modifier.PRIVATE)
+            .returns(ClassName.bestGuess("org.springframework.web.servlet.function.ServerResponse"))
+            .addParameter(
+                ParameterSpec.builder(
+                        ClassName.bestGuess(
+                            "org.springframework.web.servlet.function.ServerRequest"),
+                        "request")
+                    .build())
+            .addCode(csp.getPrelude())
+            .addCode(
+                CodeBlock.of(
+                    "return $T.ok()$L.render($S, $T.ofEntries($L));",
+                    ClassName.bestGuess("org.springframework.web.servlet.function.ServerResponse"),
+                    csp.getPolicy(),
+                    getTemplate(file),
+                    ClassName.bestGuess("java.util.Map"),
+                    CodeBlock.join(modelEntries, ",")))
+            .build());
 
     return FileVisitResult.CONTINUE;
   }
 
+  private String getHandlerMethodName(Path file) {
+    return "handle"
+        + path.stream()
+            .flatMap(s -> Arrays.stream(s.split("-")))
+            .map(StringUtils::capitalize)
+            .collect(Collectors.joining())
+        + Arrays.stream(getFileName(file).split("-"))
+            .map(StringUtils::capitalize)
+            .collect(Collectors.joining());
+  }
+
   private String getLanguage() {
-    Iterator<String> itr = path.iterator();
+    Iterator<String> itr = path.descendingIterator();
+    itr.next(); // discard root folder
+
     return itr.hasNext() ? itr.next() : null;
   }
 
@@ -108,14 +162,13 @@ public class TemplateVisitor implements FileVisitor<Path> {
   }
 
   private String getTemplate(Path file) {
-    Iterator<String> itr = path.iterator();
+    Iterator<String> itr = path.descendingIterator();
+    itr.next(); // discard root folder
+
     StringBuilder builder = new StringBuilder();
     while (itr.hasNext()) {
-      String part = itr.next();
-      if (itr.hasNext()) {
-        builder.append(part);
-        builder.append('/');
-      }
+      builder.append(itr.next());
+      builder.append('/');
     }
     builder.append(getFileName(file));
     return builder.toString();
@@ -176,10 +229,7 @@ public class TemplateVisitor implements FileVisitor<Path> {
   public JavaFile toJavaFile(String packageName) {
     return JavaFile.builder(
             packageName,
-            TypeSpec.classBuilder("TemplateRouterConfiguration")
-                .addAnnotation(
-                    ClassName.bestGuess("org.springframework.context.annotation.Configuration"))
-                .addModifiers(Modifier.PUBLIC)
+            typeSpecBuilder
                 .addMethod(methodSpecBuilder.build())
                 .addMethod(
                     MethodSpec.methodBuilder("getAlternateLanguages")

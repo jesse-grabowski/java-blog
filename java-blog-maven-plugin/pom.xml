@@ -5,7 +5,7 @@
     <parent>
         <artifactId>java-blog</artifactId>
         <groupId>com.jessegrabowski</groupId>
-        <version>${revision}${sha1}${changelist}</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,6 +45,11 @@
             <version>3.8.4</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -53,10 +58,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.6.4</version>
-                <configuration>
-                    <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
-                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                </configuration>
                 <executions>
                     <execution>
                         <id>mojo-descriptor</id>
