@@ -27,7 +27,6 @@ Test
 [plantuml, test-image, format=svg, alt="Diagram showing key exchange"]
 ....
 @startuml
-!theme sketchy-outline
 
 bob --> alice : hello
 alice --> bob : world
@@ -53,5 +52,26 @@ f(x,y)= \left\{ \begin{array}{ll}
 ++++
 
 Test
+
+== All
+
+[source,java]
+----
+for (Element script : doc.getElementsByTag("script")) {
+  if ("text/x-mathjax-config".equals(script.attr("type"))) {
+    script.attr("th:inline", "none");
+  }
+}
+----
+
+=== The
+
+==== Way
+
+===== Down
+
+====== To H6
+
+Hello
 
 xref:other.adoc[Click me]

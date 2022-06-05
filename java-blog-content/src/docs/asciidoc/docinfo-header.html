@@ -1,12 +1,10 @@
 <header>
-    <a href="/">JesseGrabowski</a>
-    <nav id="pages">
-        <ul>
+    <nav>
+        <ul id="pages">
+            <li><a href="/">JesseGrabowski</a></li>
             <li><a href="/{lang}/">Posts</a></li>
             <li><a href="/{lang}/jesse-grabowski">About</a></li>
         </ul>
-    </nav>
-    <nav id="languages">
         <ul>
             <li th:unless="${altlang == '{lang}'}" th:each="altlang: ${alternateLanguages}">
                 <a rel="alternate" th:href="@{|/${altlang}${template}|}" th:hreflang="${altlang}" th:lang="${altlang}" th:switch="${altlang}">
